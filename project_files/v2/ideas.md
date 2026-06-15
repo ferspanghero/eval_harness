@@ -115,3 +115,40 @@ is permanent. Two mitigations, cheapest first:
   eval has driven k skill edits, then re-baseline.
 - **Held-out fixture set:** a small set never iterated against, run rarely (pre-release / milestone
   only), as the unbiased check on the tuned set.
+
+## 7. Visual / UI evals with declared prerequisites (render-only defects)
+
+Some conventions — e.g. `.conventions/testing.md`'s "look at the UI, don't just assert on it" — guard
+defects that **don't live in the code text**: overflow/clipping at a breakpoint, a font that didn't
+render, an interaction that blanks the screen. A faithful eval must use a **render-only** fixture whose
+defect only surfaces by *driving the running UI*, so a code-reading agent can't shortcut it. (A spike —
+a `code-review` eval on a dark-mode theme — failed *as a probe*: the planted bug was a contrast ratio,
+which is just colour math, so the reviewer solved it statically and never had to render. Reverted. The
+lesson: the target must be a **run/verify-style skill** that launches and observes the app, not
+`code-review`; and the defect must be runtime-emergent, not code-derivable.)
+
+**The idempotency problem (the crux).** A visual eval needs a system dependency (`playwright` + a
+chromium build). If undeclared, the **verdict depends on ambient machine state** — present → graded,
+absent → the agent can't render → FAIL — so the same eval gives different results on different boxes.
+Design to remove the state-dependent FAIL:
+
+- **Declare** a `requires` block on the eval (tools + **pinned** versions: playwright version *and*
+  chromium revision — the browser build floats otherwise).
+- **Unmet → skip-loudly, not fail.** A missing system dep is an *environment gap, not a behaviour
+  regression*; failing on it is what breaks idempotency. Skipping keeps the **graded subset
+  reproducible** (present→graded, absent→skipped, never a flaky FAIL). The skip must be logged loudly
+  (per the "no silent caps" rule) so a green suite can't hide that the visual eval never ran.
+- **Provision once, pinned & cached — never per-run.** Per-run `npx playwright install` is itself
+  non-idempotent (network, slow, floating build). Install via a separate idempotent `setup`/provision
+  step (approved one-time install, user-global or a harness cache); the **agent never installs
+  mid-run** — `RUNNER_TOOLS` is network-free by design, it just drives an already-present browser.
+  (Trust: harness-executed install commands from eval data are a new exec surface — prefer a
+  pinned/reviewed prereq over arbitrary declared installs.)
+- **Grade layout facts, not pixels.** Screenshot-equality flakes across fonts / anti-aliasing / DPI
+  even with chromium present. Assert **rendered geometry** (box overflows container, text clipped,
+  computed contrast) — render-derived but reproducible.
+
+**Harness cost (new surface → Full-mode design before code):** `requires` schema field; runner
+preflight → a new **`skipped`** outcome state when unmet; benchmark/summary must represent `skipped`
+distinctly from pass/fail and surface it loudly; a separate idempotent `setup`/provision path decoupled
+from `run`. Composes with §5's measurement work but is independent of the §1 orchestrator.
