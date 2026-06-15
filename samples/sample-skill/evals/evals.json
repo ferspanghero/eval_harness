@@ -1,0 +1,23 @@
+{
+  "target": "sample-skill",
+  "evals": [
+    {
+      "id": 1,
+      "name": "summarizes-the-input",
+      "prompt": "Use the sample-skill to summarize the input in one sentence.",
+      "checks": [
+        {
+          "type": "response_contains",
+          "description": "the response mentions the summary",
+          "value": "summary"
+        }
+      ],
+      "expectations": [
+        {
+          "text": "The output summarizes the input without inventing facts not present in it.",
+          "gate": "majority"
+        }
+      ]
+    }
+  ]
+}

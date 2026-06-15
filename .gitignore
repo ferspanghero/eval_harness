@@ -1,0 +1,32 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Eval harness run artifacts + evaluation results
+.runs/
+eval-runs/
+
+# Local Claude Code config + runtime (not part of the published tool)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Secrets / credentials (defensive — none are tracked)
+.env
+.env.*
+*.key
+*.pem
+credentials.*
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
