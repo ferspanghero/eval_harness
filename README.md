@@ -65,20 +65,28 @@ eval-harness run regrade --target FILE       # re-judge the latest run's saved o
 eval-harness run calibrate --target FILE     # re-grade frozen cases → judge-vs-human agreement
 ```
 
-Name the file under test with `--target FILE` (repeatable for several), which reads the sibling
-`<dir>/evals/evals.json` (`<dir>` = the file's parent). `--eval ID|NAME`
-narrows a run or `regrade` to specific eval(s). `init --target FILE` deterministically scaffolds the
-sibling `evals/` + `ground_truth/` (no LLM); `run` on a target with no evals points you at `init`. `regrade`
-re-judges the previous run's saved record (final message + persisted output-file content — exactly
-what the original judge saw) against the *current* expectations — judge calls only, no agent runs —
-for near-free iteration on expectation wording. `--judges N` sets the judge majority vote (default
-3); `--concurrency N` caps how many evals run at once in a sweep (default `min(8, cpu count)`) — each
-eval is at most one `claude` process at a time, results are identical regardless of completion order;
-`--effort <level>` sets the reasoning effort for every LLM call — judge and analyzer
-(`low`/`medium`/`high`/`xhigh`/`max`, default `xhigh`); `--model <id>` sets the model for every LLM
-call — run, judge, analyzer (default `claude-opus-4-8`). Results co-locate at `<dir>/eval-runs/`
-beside the target (gitignored), overridable with `--out DIR`. Exit codes: `0` pass / `1` evals
-failed / `2` hard failure.
+**Targeting & modes:**
+
+- `--target FILE` — the file under test, named by full path; repeatable to sweep several. Reads the
+  sibling `<dir>/evals/evals.json` (`<dir>` = the file's parent).
+- `--eval ID|NAME` — narrow a `run` or `regrade` to specific eval(s).
+- `init` scaffolds the sibling `evals/` + `ground_truth/` deterministically (no LLM); a `run` against
+  a target with no evals points you at `init`.
+- `regrade` re-judges the previous run's saved record — the exact final message and output files the
+  judge saw — against the *current* expectations. Judge calls only, no agent runs, so iterating on
+  expectation wording is near-free.
+
+**Flags:**
+
+| Flag | Effect | Default |
+|---|---|---|
+| `--judges N` | judge votes per expectation (majority vote) | `3` |
+| `--concurrency N` | evals running at once in a sweep — one `claude` process each, results order-independent | `min(8, cpu count)` |
+| `--effort <level>` | reasoning effort for every LLM call — run, judge, analyzer (`low`/`medium`/`high`/`xhigh`/`max`) | `xhigh` |
+| `--model <id>` | model for every LLM call — run, judge, analyzer | `claude-opus-4-8` |
+| `--out DIR` | where results are written | `<dir>/eval-runs/` beside the target (gitignored) |
+
+**Exit codes:** `0` pass · `1` evals failed · `2` hard failure.
 
 ## Fixtures
 
