@@ -6,7 +6,8 @@ test by full path (`--target FILE`, e.g. a `SKILL.md`); it runs that file **in p
 content becomes the run's system prompt — on co-located coding fixtures and grades the **produced
 artifacts**, so you catch when an edit makes the skill *worse*, not merely different. It asserts on
 output (like unit tests), never on the prompt source, and is decoupled from any baked-in skills. The
-bundled sample fixtures exercise the customized **`/dev-pipeline`** workflow skills.
+bundled worked example under `samples/` is a minimal stand-in skill that doubles as the harness's own
+structural self-test.
 
 ## How It Works
 
@@ -201,7 +202,7 @@ Any verdict — including a dissenting judge's — is inspectable after the fact
 
 ```
 .
-├── src/eval_harness/    # the harness: cli, runner, deterministic, judge, benchmark, analyzer, calibration, llm seam, schemas
+├── src/eval_harness/    # the harness modules — runner, deterministic/judge/benchmark tiers, llm seam, cli (see src/eval_harness/)
 ├── samples/<skill>/     # a self-contained worked example: SKILL.md + evals/ + ground_truth/ (also the self-test)
 ├── project_files/       # research, and versioned plan/tasks
 └── tests/               # test suite (mirrors src/)

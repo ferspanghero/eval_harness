@@ -9,4 +9,4 @@ A minimal placeholder for "the skill under test". It exists so the harness ships
 self-contained example of the eval layout — `evals/evals.json` (one eval with a deterministic check
 and a judge expectation) plus `ground_truth/sample-skill.jsonl` (one frozen calibration case).
 
-Point `--skill` at a real skill directory to evaluate it; scaffold a new one with `eval-harness init`.
+Point `--target` at a real skill's `SKILL.md` to evaluate it; scaffold a new one with `eval-harness init`.
