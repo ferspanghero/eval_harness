@@ -1,7 +1,7 @@
 """Checks over files the run produced in its workspace.
 
-For file-producing skills — ``create-readme``, ``write-project-docs``, ``create-claude-md`` — whose
-deliverable is a written file, not the agent's final message. ``path`` is workspace-relative; the
+For file-producing targets — those whose deliverable is a written file (a generated README, doc, or
+config), not the agent's final message. ``path`` is workspace-relative; the
 workspace root is supplied at run time via :class:`~eval_harness.deterministic.base.RunArtifacts`.
 """
 

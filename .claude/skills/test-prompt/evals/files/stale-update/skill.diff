@@ -1,0 +1,13 @@
+diff --git a/skills/release-notes/SKILL.md b/skills/release-notes/SKILL.md
+index 3333333..4444444 100644
+--- a/skills/release-notes/SKILL.md
++++ b/skills/release-notes/SKILL.md
+@@ -10,7 +10,9 @@ Add a single release entry to the project's `CHANGELOG.md`.
+ 1. **Newest entry on top.** The new entry goes at the **top** of the entry list
+    (reverse-chronological) — directly under the file header, above all existing entries.
+-2. **Date in ISO format.** Each entry's date is written as `YYYY-MM-DD` (e.g. `2026-06-16`).
++2. **Date in long human-readable format.** Each entry's date is written as `Month DD, YYYY`
++   (e.g. `June 16, 2026`) — deliberately switched from ISO `YYYY-MM-DD` so non-technical
++   readers of the public changelog aren't tripped up by numeric dates. ISO dates must NOT be used.
+ 3. **Never rewrite existing entries.** Existing entries are immutable — insert above them, never
+    edit or reorder what is already there.

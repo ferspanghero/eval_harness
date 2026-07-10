@@ -1,0 +1,10 @@
+diff --git a/skills/release-notes/evals/evals.json b/skills/release-notes/evals/evals.json
+index 3333333..4444444 100644
+--- a/skills/release-notes/evals/evals.json
++++ b/skills/release-notes/evals/evals.json
+@@ -1 +1 @@
+-      {"text": "The entry's date is in ISO format.", "gate": "majority"}
++      {"text": "The entry's date is written in ISO format YYYY-MM-DD, not a locale/US format such as 02/14/2024.", "gate": "majority"}
+
+Note: only this existing eval EXPECTATION was reworded for clarity. The release-notes SKILL.md is
+unchanged, no new eval case was added, and no ground-truth (calibration) case was added or changed.

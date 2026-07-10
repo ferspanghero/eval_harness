@@ -1,0 +1,20 @@
+=== Observed output of a release-notes run (for version 1.2.0) ===
+
+This is what the release-notes skill ACTUALLY produced on one run. It is provided only as context.
+Do NOT treat it as the specification — assertions must come from the skill's stated contract.
+
+--- produced CHANGELOG.md ---
+# Changelog
+
+## 1.1.0 — 2024-02-01
+### Added
+- Initial import command.
+
+## 1.2.0 — 02/14/2024
+### Added
+- New export command.
+------------------------------
+
+(Note for the human reading this fixture, not for the skill under test: this output VIOLATES the
+release-notes contract two ways — the 1.2.0 entry was appended at the BOTTOM instead of the top, and
+its date "02/14/2024" is a US locale format instead of ISO YYYY-MM-DD.)

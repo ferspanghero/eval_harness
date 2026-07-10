@@ -105,7 +105,7 @@ JSON object — a `target` label plus an `evals` array:
 
 ```json
 {
-  "target": "code-review",
+  "target": "reviewer",
   "system_prompt": "Optional run directive appended after the target file's content.",
   "evals": [
     {
@@ -204,6 +204,7 @@ Any verdict — including a dissenting judge's — is inspectable after the fact
 .
 ├── src/eval_harness/    # the harness modules — runner, deterministic/judge/benchmark tiers, llm seam, cli (see src/eval_harness/)
 ├── samples/<skill>/     # a self-contained worked example: SKILL.md + evals/ + ground_truth/ (also the self-test)
+├── .claude/skills/      # vendored eval-authoring toolkit (generate-evals, generate-ground-truth, test-prompt); no external skills needed
 ├── project_files/       # research, and versioned plan/tasks
 └── tests/               # test suite (mirrors src/)
 ```

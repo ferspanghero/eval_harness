@@ -1,0 +1,19 @@
+{
+  "target": "release-notes",
+  "evals": [
+    {
+      "id": 1,
+      "name": "entry-has-version-date-category",
+      "prompt": "Add a release entry for version 1.2.0 summarizing a new export command. Your own system prompt IS the release-notes skill; apply it directly.",
+      "files": ["files/changelog-seed.md"],
+      "output_files": ["CHANGELOG.md"],
+      "checks": [
+        {"type": "file_exists", "description": "CHANGELOG.md exists", "path": "CHANGELOG.md"},
+        {"type": "file_contains", "description": "entry names the version", "path": "CHANGELOG.md", "value": "1.2.0"}
+      ],
+      "expectations": [
+        {"text": "The new entry includes the version 1.2.0, a release date, and at least one of the Added/Fixed/Changed category headings.", "gate": "majority"}
+      ]
+    }
+  ]
+}

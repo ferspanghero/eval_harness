@@ -56,7 +56,7 @@ class CalibrationReport:
     def by_skill(self) -> dict[str, tuple[int, int]]:
         """Agreement broken down per skill: ``skill -> (agreed, total)``.
 
-        Surfaces *per-cell* bias (e.g. lenient on every security-audit case) that an aggregate
+        Surfaces *per-cell* bias (e.g. lenient on every case for one skill) that an aggregate
         rate hides, and shows which skills are under-covered.
         """
         breakdown: dict[str, tuple[int, int]] = {}

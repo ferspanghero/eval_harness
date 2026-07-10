@@ -25,6 +25,7 @@ for the full architecture and milestone plan — don't duplicate those here.
 
 - `src/eval_harness/` — the harness (cli, runner, deterministic, judge, benchmark, analyzer, the `llm` seam, schemas; `prompts/`).
 - `samples/<skill>/` — a self-contained worked example (`SKILL.md` + `evals/` + `ground_truth/`); the in-repo self-test. The harness is **decoupled** — point `--target` at any file's path.
+- `.claude/skills/` — the **vendored eval-authoring toolkit** (`generate-evals`, `generate-ground-truth`, `test-prompt`), each a self-contained skill carrying its own `evals/` + `ground_truth/`. Ships in-repo so the harness depends on **no external/global skills**; each skill also doubles as an additional harness target alongside `samples/`.
 - `project_files/` — research, and versioned `vN/plan.md` + `tasks.md`.
 - A target's `<dir>/eval-runs/` (beside the target file) and run workspaces are gitignored artifacts.
 
@@ -38,17 +39,6 @@ for the full architecture and milestone plan — don't duplicate those here.
 - Mock only the external boundary — the `claude -p` subprocess, centralized in the **`llm` seam**. Every LLM call routes through `llm.call` (judge/analyzer via `call_json`; the runner adds agentic flags via `LLMRequest.extra_args` + `cwd`/`env`). `llm`'s public surface is `call`/`call_json` + the data types; the subprocess (`_default_runner`) is private. Inject at the right layer: runner/judge/analyzer take `call`/`call_json`; the cli takes `run_fn`/`grade_fn`; `test_llm` fakes the subprocess via `llm.call`'s `runner` param.
 - **Deterministic tier is an open/closed check library.** Add a check type by dropping a `Check` subclass under `deterministic/checks/` and adding one line to the `REGISTRY` table in `checks/__init__.py` — both edits in plain sight (no import-time self-registration); the `parse_check` dispatch and the iterator (`checks_runner.py`) need no edits. Every check reads one `RunArtifacts` bundle (response / workspace / fixture_dir) and returns a `CheckResult`. **Execution checks** (running the produced code — tests/coverage/typecheck/lint/held-out acceptance) run *fixture-declared* commands as their own subprocesses (`shlex.split`, no shell, with a timeout) in the produced workspace — **not** via the `llm` seam, and tested with real trivial commands, not mocked. Executing produced code shares the agent-run trust boundary (out-of-repo workspace; OS sandbox deferred — SEC1).
 
-## Implementation workflow (mandatory)
-
-Every code change to this harness (`src/`, `tests/`) **must run `/dev-pipeline` phases 3 → 4 → 5 in order** — no skipping:
-
-- **Phase 3 — Implement (TDD):** load the **`test-driven-development`** and **`karpathy-guidelines`** skills *and* the conventions in `~/.claude/skills/.conventions/` (`testing.md`, `python.md`). Failing test first → minimum code to green → refactor while green; cover the canonical edge cases.
-- **Phase 4 — Code Review:** always run the **`code-review`** skill over the implementation. Categorize findings (Critical / Important / Suggestion); all Critical addressed or explicitly deferred.
-- **Phase 5 — Verify:** always finish with the **`verification-before-completion`** skill — run `uv run pytest`, `uv run mypy`, `uv run ruff check` with output shown, confirm the branch-coverage gate, and run **`security-audit`** in diff mode. No completion claim without fresh evidence.
-- **Phase 6 — Sync docs (mandatory):** run both **`create-readme`** and **`create-claude-md`** — each generates its doc if missing, else idempotently updates it to catch drift; don't hand-edit the docs. A purely-internal change is a harmless no-op (the skills find no drift). Other ship-steps (changelog, version bump, deploy) stay per-project.
-
-(Phases 1–2 plan/docs and Phase 6's other ship-steps apply only when the work warrants them; 3–5 and the Phase 6 doc-sync are non-negotiable for any code.)
-
 ## Domain operating rules
 
 - **Flow:** runner → deterministic → (gated) judge → benchmark. `all` runs the judge only when the deterministic tier passes. The agent run + deterministic checks happen once; only the judge repeats (`--judges N`, per-expectation majority; default 3).
@@ -59,6 +49,21 @@ Every code change to this harness (`src/`, `tests/`) **must run `/dev-pipeline` 
 - **Judge isolation:** `--setting-sources project,local`. Do **not** use `--bare` — it strips the login credential ("Not logged in").
 - **A failed judge call** counts as a single **logged fail vote** in the per-expectation majority — `judge.grade` is the one place this is handled (callers don't catch it): one bad judge can't sink a vote the others carry, and a total outage just fails the item rather than aborting a sweep or calibration. The `judge error` evidence + the WARNING log distinguish an internal/grader failure from a real judge-assessed fail.
 - **Results** are written under `<dir>/eval-runs/<timestamp>/` (beside a single target; else `./eval-runs/`, overridable `--out`): a summary `results.json` plus a per-eval **audit record** (layout in the README) — every judge's raw ballot, dissent included, plus copied transcripts. Every `llm` call runs under a pinned `--session-id` so even a failed grader call is locatable. `analyze` and `regrade` read the latest under that results root; the analyzer stays a deny-all single pass over the summary only. Exit codes: `0` pass / `1` evals failed / `2` hard failure.
+
+## Authoring & re-validating evals
+
+The eval suites and ground truth this harness runs are authored by the **vendored skills** under
+`.claude/skills/` — no external/global skills required:
+
+- **`generate-evals`** (`create` / `analyze`) authors or audits a target's sibling `evals/evals.json`
+  (deterministic checks + judge expectations) and its fixtures. Assertions derive from the target's
+  **confirmed contract**, never its observed output.
+- **`generate-ground-truth`** authors the judge-calibration ground truth (see below).
+- **`test-prompt`** is the orchestrator: **after any target changes** — a prompt/instruction file,
+  *including these skills themselves* — re-validate it with `/test-prompt <target>` → baseline
+  `run all` → coverage gaps via `generate-evals` → recalibrate via `generate-ground-truth` only if a
+  new judge-expectation *type* appeared → iterate fixtures to green. It drives the harness (`uv run
+  eval-harness`) and never commits.
 
 ## Judge calibration
 

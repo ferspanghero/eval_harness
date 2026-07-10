@@ -1,0 +1,86 @@
+{
+  "target": "generate-ground-truth",
+  "evals": [
+    {
+      "id": 1,
+      "name": "analyze-thin-set-reports-gaps",
+      "prompt": "Acting as the generate-ground-truth skill in analyze mode, assess the coverage of the calibration ground-truth file gapped.jsonl, treating it as ground truth for the code-review skill (invocation form: `generate-ground-truth analyze code-review gapped.jsonl`). Your own system-prompt instructions ARE the generate-ground-truth skill — apply them directly to perform the analyze-mode coverage assessment yourself. Do NOT look for, wait for, or report that an external 'generate-ground-truth' tool/skill is unavailable; read the file with your tools and produce the assessment. This is analyze mode: read-only — assess coverage and report it (topics, quadrants present, polarity balance, seed diversity, the concrete gaps, and a verdict); do not write, append to, or modify any file.",
+      "files": [
+        "files/gapped.jsonl"
+      ],
+      "checks": [
+        {
+          "type": "response_contains_any",
+          "description": "produces a coverage assessment, not just a restatement",
+          "values": [
+            "quadrant",
+            "coverage",
+            "polarity",
+            "topic",
+            "seed"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "signals the set is incomplete",
+          "values": [
+            "gap",
+            "missing",
+            "insufficient",
+            "needs",
+            "add"
+          ]
+        }
+      ],
+      "expectations": [
+        {
+          "text": "The report correctly diagnoses that gapped.jsonl is thin: it covers only a single defect class/topic (sql-injection), only the correct-detection quadrant, only the pass polarity (there are no fail / missed / fabricated / under-rated cases), and a single seed shape (one Python file)",
+          "gate": "majority"
+        },
+        {
+          "text": "The report returns an 'insufficient / needs more' verdict and names concrete gaps to fill (e.g. fail-polarity cases, additional defect classes, an out-of-scope/excluded case, more than one seed shape) — it does NOT declare the set sufficient",
+          "gate": "unanimous"
+        },
+        {
+          "text": "The report stays within analyze mode — it only assesses coverage and proposes what is missing; it does not claim to have written, appended, or generated any new ground-truth cases (analyze is read-only)",
+          "gate": "majority"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "analyze-broad-set-reports-sufficient",
+      "prompt": "Acting as the generate-ground-truth skill in analyze mode, assess the coverage of the calibration ground-truth file sufficient.jsonl, treating it as ground truth for the code-review skill (invocation form: `generate-ground-truth analyze code-review sufficient.jsonl`). Your own system-prompt instructions ARE the generate-ground-truth skill — apply them directly to perform the analyze-mode coverage assessment yourself. Do NOT look for, wait for, or report that an external 'generate-ground-truth' tool/skill is unavailable; read the file with your tools and produce the assessment. This is analyze mode: read-only — assess coverage and report it (topics, quadrants present, polarity balance, seed diversity, the concrete gaps, and a verdict); do not write, append to, or modify any file.",
+      "files": [
+        "files/sufficient.jsonl"
+      ],
+      "checks": [
+        {
+          "type": "response_contains_any",
+          "description": "produces a coverage assessment",
+          "values": [
+            "quadrant",
+            "coverage",
+            "polarity",
+            "topic",
+            "seed"
+          ]
+        }
+      ],
+      "expectations": [
+        {
+          "text": "The report accurately reads the breadth of sufficient.jsonl: it spans multiple defect classes (sql-injection, command-injection, path-traversal, resource-leak, authorization, and convention/style), both pass and fail polarities, the full range of coverage quadrants (correct-detection, missed, under-rated, fabricated, over-rated, out-of-scope, partial, cautious-decline), across more than one seed language (Python and JavaScript)",
+          "gate": "majority"
+        },
+        {
+          "text": "Because the set already contains fail-polarity cases, multiple defect classes, and multiple quadrants, the report does NOT claim any of those as baseline gaps — it does not say the set lacks fail cases, covers only one (or very few) defect classes, or has only one or two quadrants. Any additions it recommends are framed as genuine extensions beyond an already-broad base (e.g. more seed languages or extra defect classes), not corrections of coverage the set is missing at baseline",
+          "gate": "majority"
+        },
+        {
+          "text": "The report stays within analyze mode — read-only assessment only; it does not claim to have written or appended any cases",
+          "gate": "majority"
+        }
+      ]
+    }
+  ]
+}

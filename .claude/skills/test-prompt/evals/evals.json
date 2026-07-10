@@ -1,0 +1,163 @@
+{
+  "target": "test-prompt",
+  "evals": [
+    {
+      "id": 1,
+      "name": "ambiguous-red-surfaced-not-edited",
+      "prompt": "Acting as the test-prompt orchestrator for the `release-notes` target, decide what to do after a target edit. The SKILL.md change is in skill.diff. The baseline `eval-harness run all` has ALREADY been executed for you — its output is in baseline-results.json. Your own system-prompt instructions ARE the test-prompt skill; apply them directly. IMPORTANT: the eval-harness CLI, generate-evals, and generate-ground-truth are NOT available in this workspace — do NOT attempt to invoke them, run any agent, or report a tool as missing; reason ONLY from skill.diff and baseline-results.json and state your plan and decisions in your final message. Identify any failing eval, classify it, decide how to proceed, and say what (if anything) you would re-run. Do not write or modify any file.",
+      "files": [
+        "files/regression/skill.diff",
+        "files/regression/baseline-results.json"
+      ],
+      "checks": [
+        {
+          "type": "response_contains_any",
+          "description": "uses the regression-vs-stale frame",
+          "values": [
+            "regression",
+            "stale"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "names the failing eval",
+          "values": [
+            "newest",
+            "on top",
+            "newest-entry-on-top",
+            "eval 2",
+            "2.0.0"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "surfaces for the human / leaves the eval untouched rather than editing",
+          "values": [
+            "untouched",
+            "leave",
+            "surface",
+            "final review",
+            "for your review",
+            "flag",
+            "ambiguous"
+          ]
+        }
+      ],
+      "expectations": [
+        {
+          "text": "Identifies the failing eval (newest-entry-on-top, id 2) from baseline-results.json and connects it to skill.diff, which replaced the 'newest entry on top' rule with a weaker 'append somewhere among existing entries' rule — i.e. the diff changed the invariant the eval checks.",
+          "gate": "majority"
+        },
+        {
+          "text": "Frames the failure as a regression-vs-stale question and, because the diff's intent is genuinely AMBIGUOUS (it weakens a standard newest-on-top changelog convention — as consistent with an accidental regression as with a deliberate spec change), does NOT silently modify, update, or delete the failing eval; instead it leaves the existing eval untouched and surfaces the tension for the human in its final review rather than guessing. It need not halt mid-run. A decision that silently rewrites or retires the eval on this ambiguous diff fails.",
+          "gate": "unanimous"
+        },
+        {
+          "text": "Names the correct re-validation per branch — a full `run` (reasonably narrowed with --eval) to validate a target fix if the human deems it a regression; `regrade` only to re-score saved outputs after an intentional expectation relaxation — and never substitutes regrade for validating a fix.",
+          "gate": "majority"
+        },
+        {
+          "text": "The decision does not commit, push, or stage any changes — it reports that no commit/push was performed and leaves the working tree for the human (the skill's never-commit rule). A decision that commits or pushes fails.",
+          "gate": "majority"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "wording-change-uses-regrade-skips-calibrate",
+      "prompt": "Acting as the test-prompt orchestrator during iteration on the `release-notes` target, decide how to re-validate after a change. The change is in expectation.diff: only the WORDING of one existing eval expectation was sharpened — the target's SKILL.md is unchanged, no new eval case was added, and no ground-truth/calibration case was added or changed. Your own system-prompt instructions ARE the test-prompt skill; apply them directly. IMPORTANT: the eval-harness CLI is NOT available in this workspace — do NOT attempt to invoke it or any sub-skill; reason ONLY from expectation.diff and state, in your final message, which harness mode you would use to re-validate and why, and whether calibration is needed. Do not write or modify any file.",
+      "files": [
+        "files/wording/expectation.diff"
+      ],
+      "checks": [
+        {
+          "type": "response_contains_any",
+          "description": "selects regrade",
+          "values": [
+            "regrade"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "addresses calibration",
+          "values": [
+            "calibrate",
+            "calibration",
+            "ground truth",
+            "ground-truth"
+          ]
+        }
+      ],
+      "expectations": [
+        {
+          "text": "Chooses `regrade` to re-validate — re-judging the latest run's saved outputs against the reworded expectation — and explains that a full agent re-run (`run`) is NOT needed because only expectation wording changed, not target behavior or a fixture.",
+          "gate": "unanimous"
+        },
+        {
+          "text": "Skips calibration — it does NOT call `calibrate`, correctly because no ground-truth/calibration case was added or changed.",
+          "gate": "majority"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "stale-eval-updated-autonomously-and-flagged",
+      "prompt": "Acting as the test-prompt orchestrator for the `release-notes` target, decide what to do after a target edit. The SKILL.md change is in skill.diff. The baseline `eval-harness run all` has ALREADY been executed for you — its output is in baseline-results.json. Your own system-prompt instructions ARE the test-prompt skill; apply them directly. IMPORTANT: the eval-harness CLI, generate-evals, and generate-ground-truth are NOT available in this workspace — do NOT attempt to invoke them, run any agent, or report a tool as missing; reason ONLY from skill.diff and baseline-results.json and state your plan and decisions in your final message. Identify any failing eval, classify it, decide how to proceed, and say what (if anything) you would change and re-run. Do not write or modify any file.",
+      "files": [
+        "files/stale-update/skill.diff",
+        "files/stale-update/baseline-results.json"
+      ],
+      "checks": [
+        {
+          "type": "response_contains_any",
+          "description": "classifies the change as an intentional/stale behavior change",
+          "values": [
+            "stale",
+            "intentional",
+            "deliberate"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "names the failing eval",
+          "values": [
+            "iso",
+            "date",
+            "iso-date",
+            "eval 3"
+          ]
+        },
+        {
+          "type": "response_contains_any",
+          "description": "decides to update the stale eval",
+          "values": [
+            "update",
+            "rewrite",
+            "revise",
+            "adjust",
+            "retire",
+            "relax"
+          ]
+        }
+      ],
+      "expectations": [
+        {
+          "text": "Identifies the failing eval (iso-date-format, id 3) from baseline-results.json and connects it to skill.diff, which deliberately replaced the ISO `YYYY-MM-DD` date rule with a long human-readable `Month DD, YYYY` format — so the eval now asserts a date format the new contract explicitly forbids.",
+          "gate": "majority"
+        },
+        {
+          "text": "Classifies the failure as an intentionally-STALE eval — the diff is an explicit, reasoned, deliberate behavior change (it states the switch is intentional and that ISO must not be used), not an accidental regression — and therefore decides to UPDATE the existing iso-date eval's expectation to the new human-readable format AUTONOMOUSLY, without halting mid-run to ask permission, while FLAGGING that existing-case edit prominently for the human's end review. Editing the eval is correct here precisely because the target change is clearly intended.",
+          "gate": "unanimous"
+        },
+        {
+          "text": "To re-validate it chooses `regrade` (narrowed with --eval to the affected case), not a full `run` — only the eval's EXPECTATION changed; the baseline's saved output already reflects the new human-readable date, so re-judging that saved output against the updated expectation is correct and a full agent re-run is unnecessary.",
+          "gate": "majority"
+        },
+        {
+          "text": "The decision does not commit, push, or stage any changes — it reports that no commit/push was performed and leaves the working tree for the human (the skill's never-commit rule). A decision that commits or pushes fails.",
+          "gate": "majority"
+        }
+      ]
+    }
+  ]
+}

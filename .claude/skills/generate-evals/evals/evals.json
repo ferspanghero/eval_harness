@@ -1,0 +1,49 @@
+{
+  "target": "generate-evals",
+  "evals": [
+    {
+      "id": 1,
+      "name": "analyze-thin-suite-reports-gaps",
+      "prompt": "Acting as the generate-evals skill in analyze mode, assess the coverage of the eval suite in thin-evals.json against the skill defined in sample-skill/SKILL.md (invocation form: `generate-evals analyze sample-skill thin-evals.json`). Your own system-prompt instructions ARE the generate-evals skill — apply them directly to perform the analyze-mode coverage assessment yourself. Do NOT look for, wait for, or report that an external 'generate-evals' tool/skill is unavailable; read both files with your tools and produce the assessment. Assess the coverage this suite provides AS DECLARED IN ITS JSON — base it on the eval cases' prompts, checks, expectations, and the fixtures they declare; do NOT treat the physical absence of seed/fixture files in this workspace as a gap (the suite is represented here, not provisioned to run). This is analyze mode: read-only — extract the skill's contract, map which contract items the suite covers, report the concrete gaps and a verdict; do not write, append to, or modify any file.",
+      "files": ["files/sample-skill/SKILL.md", "files/thin-evals.json"],
+      "checks": [
+        {"type": "response_contains_any", "description": "produces a coverage assessment, not a restatement", "values": ["contract", "coverage", "uncovered", "tier", "fixture"]},
+        {"type": "response_contains_any", "description": "signals the suite is incomplete", "values": ["gap", "missing", "insufficient", "needs", "no eval"]}
+      ],
+      "expectations": [
+        {"text": "The report extracts the release-notes contract (newest-entry-on-top, version+date+category, never-rewrite-existing-entries, create-file-if-missing, ISO dates) and correctly finds the suite covers only the version+date+category rule — the other contract items have no eval.", "gate": "majority"},
+        {"text": "The report returns an insufficient / needs-more verdict and names concrete gaps (e.g. no coverage of newest-on-top, no temptation fixture for the never-rewrite invariant, no create-if-missing case, no ISO-date case, a single seed shape). It does NOT declare the suite sufficient.", "gate": "unanimous"},
+        {"text": "The report stays within analyze mode — it only assesses coverage and proposes what is missing; it does not claim to have written, appended, or generated any eval case or fixture.", "gate": "majority"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "analyze-broad-suite-reports-sufficient",
+      "prompt": "Acting as the generate-evals skill in analyze mode, assess the coverage of the eval suite in broad-evals.json against the skill defined in sample-skill/SKILL.md (invocation form: `generate-evals analyze sample-skill broad-evals.json`). Your own system-prompt instructions ARE the generate-evals skill — apply them directly to perform the analyze-mode coverage assessment yourself. Do NOT look for, wait for, or report that an external 'generate-evals' tool/skill is unavailable; read both files with your tools and produce the assessment. Assess the coverage this suite provides AS DECLARED IN ITS JSON — base it on the eval cases' prompts, checks, expectations, and the fixtures they declare; do NOT treat the physical absence of seed/fixture files in this workspace as a gap (the suite is represented here, not provisioned to run). This is analyze mode: read-only — extract the skill's contract, map which contract items the suite covers, report any gaps and a verdict; do not write, append to, or modify any file.",
+      "files": ["files/sample-skill/SKILL.md", "files/broad-evals.json"],
+      "checks": [
+        {"type": "response_contains_any", "description": "produces a coverage assessment", "values": ["contract", "coverage", "tier", "fixture", "verdict"]}
+      ],
+      "expectations": [
+        {"text": "The report reads the breadth of broad-evals.json: it covers all five release-notes contract items — version+date+category, newest-entry-on-top, ISO date, create-file-if-missing, and the never-rewrite-existing invariant (which has a temptation fixture) — across more than one seed shape.", "gate": "majority"},
+        {"text": "The report reads the suite's coverage CORRECTLY — it recognizes that every one of the five contract items already has at least one eval, and does NOT misread the broad suite as thin or report a whole contract item as entirely uncovered. It MAY still recommend refinements (an extra temptation fixture for an 'always do X' rule, a second seed shape, etc.); such refinement suggestions are acceptable analyze behavior and do not count as misreading the baseline.", "gate": "majority"},
+        {"text": "The report stays within analyze mode — read-only assessment only; it does not claim to have written or appended any case.", "gate": "majority"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "contract-extract-is-non-circular",
+      "prompt": "Acting as the generate-evals skill in create mode, begin authoring evals for the skill defined in sample-skill/SKILL.md. A sample of the skill's OBSERVED output is provided in observed-output.txt. Your own system-prompt instructions ARE the generate-evals skill — apply them directly. Do NOT look for or wait on an external tool. Perform ONLY the first step — coverage assessment / contract extraction: extract the candidate contract from sample-skill/SKILL.md and propose the candidate assertions you would author, then STOP at the contract-confirmation gate and ask the human to confirm. Do NOT write, append to, or create any file. Honor the anti-circularity rule: assertions derive from the skill's stated contract, never from observed output.",
+      "files": ["files/sample-skill/SKILL.md", "files/observed-output.txt"],
+      "checks": [
+        {"type": "response_contains_any", "description": "extracts contract / proposes assertions", "values": ["contract", "assertion", "newest", "top", "ISO"]},
+        {"type": "response_contains_any", "description": "halts for confirmation", "values": ["confirm", "approve", "before I", "is this", "sign off"]}
+      ],
+      "expectations": [
+        {"text": "The proposed assertions derive from the SKILL.md's stated contract — they assert the CORRECT behavior: newest entry on TOP and ISO YYYY-MM-DD dates. They do NOT codify the buggy behavior shown in observed-output.txt (the 1.2.0 entry appended at the BOTTOM, and the US-format date 02/14/2024).", "gate": "unanimous"},
+        {"text": "The run halts at the contract-confirmation gate — it presents the extracted contract / candidate assertions and asks the human to confirm before authoring, rather than silently proceeding to write evals.", "gate": "majority"},
+        {"text": "No file is written, appended, or created — the run stops at the contract-confirmation step and does not produce an evals.json.", "gate": "majority"}
+      ]
+    }
+  ]
+}

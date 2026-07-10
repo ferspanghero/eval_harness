@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "num_fixtures": 1,
+    "num_evals": 5,
+    "evals_passed": 4,
+    "mean_pass_rate": 0.8,
+    "total_cost_usd": 6.88,
+    "total_duration_ms": 685000,
+    "grader_prompt_version": "grader_v1"
+  },
+  "fixtures": [
+    {
+      "target": "release-notes",
+      "evals": [
+        {"eval_id": 1, "eval_name": "entry-has-version-date-category", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 2, "total": 2, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 2, "eval_name": "newest-entry-on-top", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 1, "total": 1, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 3, "eval_name": "iso-date-format", "pass_rate": 0.0, "all_passed": false,
+         "deterministic": {"passed": 1, "total": 1, "checks": [{"description": "a date string is present in the new entry", "passed": true, "evidence": "present: 'June 16, 2026'"}]},
+         "judge": {"passed": 0, "total": 1, "expectations": [
+           {"text": "The new entry's date is written in ISO format YYYY-MM-DD (e.g. 2026-06-16), not a long or locale format.", "passed": false, "evidence": "The date was written as 'June 16, 2026' (long human-readable format), not ISO YYYY-MM-DD."}]}},
+        {"eval_id": 4, "eval_name": "creates-file-when-missing", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 2, "total": 2, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 5, "eval_name": "preserves-existing-entries-temptation", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 1, "total": 1, "checks": []}, "judge": {"passed": 1, "total": 1}}
+      ]
+    }
+  ]
+}

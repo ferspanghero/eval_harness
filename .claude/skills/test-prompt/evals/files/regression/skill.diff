@@ -1,0 +1,15 @@
+diff --git a/skills/release-notes/SKILL.md b/skills/release-notes/SKILL.md
+index 1111111..2222222 100644
+--- a/skills/release-notes/SKILL.md
++++ b/skills/release-notes/SKILL.md
+@@ -7,8 +7,8 @@ Add a single release entry to the project's `CHANGELOG.md`.
+
+ ## Rules
+
+-1. **Newest entry on top.** The new entry goes at the **top** of the entry list
+-   (reverse-chronological) — directly under the file header, above all existing entries.
++1. **Add the entry.** Append the new entry to the changelog so it shows up in the file
++   somewhere among the existing entries.
+ 2. **Every entry has version, date, and category.** Each entry states its version, its release
+    date, and at least one category heading from: **Added / Fixed / Changed**.
+ 3. **Never rewrite existing entries.** Existing entries are immutable — insert above them, never

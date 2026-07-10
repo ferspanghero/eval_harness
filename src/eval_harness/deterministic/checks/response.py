@@ -1,7 +1,7 @@
 """Checks over the agent's response text (its final message).
 
-For text skills whose deliverable *is* the message — e.g. ``code-review``'s review or
-``security-audit``'s findings — rather than a produced file. Matching is case-insensitive: these
+For text targets whose deliverable *is* the message — e.g. a review's findings or an audit's
+report — rather than a produced file. Matching is case-insensitive: these
 assert the *presence of a signal* (a symbol name, a vulnerability class), not exact wording.
 """
 

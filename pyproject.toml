@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "eval-harness"
 version = "0.1.0"
-description = "Behavioral eval harness for the /dev-pipeline workflow"
+description = "Behavioral eval harness for prompt and instruction files (skills, workflows, any prompt file)"
 requires-python = ">=3.10"
 dependencies = []
 

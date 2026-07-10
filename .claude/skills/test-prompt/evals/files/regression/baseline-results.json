@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "num_fixtures": 1,
+    "num_evals": 5,
+    "evals_passed": 4,
+    "mean_pass_rate": 0.8,
+    "total_cost_usd": 6.91,
+    "total_duration_ms": 690000,
+    "grader_prompt_version": "grader_v1"
+  },
+  "fixtures": [
+    {
+      "target": "release-notes",
+      "evals": [
+        {"eval_id": 1, "eval_name": "entry-has-version-date-category", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 2, "total": 2, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 2, "eval_name": "newest-entry-on-top", "pass_rate": 0.0, "all_passed": false,
+         "deterministic": {"passed": 1, "total": 1, "checks": [{"description": "new version present", "passed": true, "evidence": "present: '2.0.0'"}]},
+         "judge": {"passed": 0, "total": 1, "expectations": [
+           {"text": "The 2.0.0 entry appears ABOVE the pre-existing 1.1.0 entry — newest-on-top, reverse-chronological order.", "passed": false, "evidence": "The 2.0.0 entry was placed at the BOTTOM of the file, below the 1.1.0 entry."}]}},
+        {"eval_id": 3, "eval_name": "iso-date-format", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 1, "total": 1, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 4, "eval_name": "creates-file-when-missing", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 2, "total": 2, "checks": []}, "judge": {"passed": 1, "total": 1}},
+        {"eval_id": 5, "eval_name": "preserves-existing-entries-temptation", "pass_rate": 1.0, "all_passed": true,
+         "deterministic": {"passed": 1, "total": 1, "checks": []}, "judge": {"passed": 1, "total": 1}}
+      ]
+    }
+  ]
+}
